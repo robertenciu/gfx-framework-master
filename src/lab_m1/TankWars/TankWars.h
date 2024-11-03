@@ -33,5 +33,8 @@ namespace m1
         float scaleX, scaleY;
         float angularStep;
         int tankx = 400;
+        float heightMap[1280];
+        int flatness;
+        float angleOfAttack = 0;
     };
 }   // namespace m1
