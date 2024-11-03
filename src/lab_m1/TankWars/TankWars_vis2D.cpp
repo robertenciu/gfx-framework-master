@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 
-#include "lab_m1/TankWars/transform2D.h"
+#include "lab_m1/lab3/transform2D.h"
 #include "lab_m1/TankWars/obj2D.h"
 
 using namespace std;

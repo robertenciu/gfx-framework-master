@@ -2,7 +2,6 @@
 
 #include "components/simple_scene.h"
 
-
 namespace m1
 {
     class TankWars : public gfxc::SimpleScene
@@ -33,8 +32,6 @@ namespace m1
         float translateX, translateY;
         float scaleX, scaleY;
         float angularStep;
-
-        // TODO(student): If you need any other class variables, define them here.
-
+        int tankx = 400;
     };
 }   // namespace m1
