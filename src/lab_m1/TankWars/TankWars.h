@@ -1,6 +1,8 @@
 #pragma once
 
 #include "components/simple_scene.h"
+#include "lab_m1/TankWars/Terrain.h"
+
 
 namespace m1
 {
@@ -36,5 +38,13 @@ namespace m1
         float heightMap[1280];
         int flatness;
         float angleOfAttack = 0;
+        float staticDT = 0.0145815;
+        float power = 60;
+        bool shooting = false;
+        float posBombaX = 0;
+        float posBombaY = 0;
+        glm::vec2 v;
+        float rotationAngle = 0;
+        float tanky;
     };
 }   // namespace m1

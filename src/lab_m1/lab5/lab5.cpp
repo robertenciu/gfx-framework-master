@@ -85,6 +85,17 @@ void Lab5::Update(float deltaTimeSeconds)
         RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
     }
 
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix = glm::translate(modelMatrix, glm::vec3(-10, 4.5f, -4));
+        RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
+    }
+    {
+        glm::mat4 modelMatrix = glm::mat4(1);
+        modelMatrix = glm::translate(modelMatrix, glm::vec3(10, 0.5f, 4));
+        modelMatrix = glm::rotate(modelMatrix, RADIANS(45.0f), glm::vec3(0, 0, 1.7));
+        RenderMesh(meshes["box"], shaders["Simple"], modelMatrix);
+    }
     // TODO(student): Draw more objects with different model matrices.
     // Attention! The `RenderMesh()` function overrides the usual
     // `RenderMesh()` that we've been using up until now. This new
@@ -139,32 +150,33 @@ void Lab5::OnInputUpdate(float deltaTime, int mods)
 
         if (window->KeyHold(GLFW_KEY_W)) {
             // TODO(student): Translate the camera forward
-
+            camera->TranslateForward(deltaTime * cameraSpeed);
         }
 
-        if (window->KeyHold(GLFW_KEY_A)) {
-            // TODO(student): Translate the camera to the left
-
+        if (window->KeyHold(GLFW_KEY_A))
+        {
+            // Translate the camera to the left
+            camera->TranslateRight(-deltaTime * cameraSpeed);
         }
-
-        if (window->KeyHold(GLFW_KEY_S)) {
-            // TODO(student): Translate the camera backward
-
+        if (window->KeyHold(GLFW_KEY_S))
+        {
+            // Translate the camera backwards
+            camera->TranslateForward(-deltaTime * cameraSpeed);
         }
-
-        if (window->KeyHold(GLFW_KEY_D)) {
-            // TODO(student): Translate the camera to the right
-
+        if (window->KeyHold(GLFW_KEY_D))
+        {
+            // Translate the camera to the right
+            camera->TranslateRight(deltaTime * cameraSpeed);
         }
-
-        if (window->KeyHold(GLFW_KEY_Q)) {
-            // TODO(student): Translate the camera downward
-
+        if (window->KeyHold(GLFW_KEY_Q))
+        {
+            // Translate the camera down
+            camera->TranslateUpward(-deltaTime * cameraSpeed);
         }
-
-        if (window->KeyHold(GLFW_KEY_E)) {
-            // TODO(student): Translate the camera upward
-
+        if (window->KeyHold(GLFW_KEY_E))
+        {
+            // Translate the camera up
+            camera->TranslateUpward(deltaTime * cameraSpeed);
         }
     }
 
@@ -203,20 +215,22 @@ void Lab5::OnMouseMove(int mouseX, int mouseY, int deltaX, int deltaY)
         float sensivityOX = 0.001f;
         float sensivityOY = 0.001f;
 
-        if (window->GetSpecialKeyState() == 0) {
+        if (window->GetSpecialKeyState() == 0)
+        {
             renderCameraTarget = false;
-            // TODO(student): Rotate the camera in first-person mode around
-            // OX and OY using `deltaX` and `deltaY`. Use the sensitivity
-            // variables for setting up the rotation speed.
-
+            // Rotate the camera in First-person mode around OX and OY using deltaX and deltaY
+            // Use the sensitivity variables for setting up the rotation speed
+            camera->RotateFirstPerson_OX(sensivityOX * -deltaY);
+            camera->RotateFirstPerson_OY(sensivityOY * -deltaX);
         }
 
-        if (window->GetSpecialKeyState() & GLFW_MOD_CONTROL) {
+        if (window->GetSpecialKeyState() && GLFW_MOD_CONTROL)
+        {
             renderCameraTarget = true;
-            // TODO(student): Rotate the camera in third-person mode around
-            // OX and OY using `deltaX` and `deltaY`. Use the sensitivity
-            // variables for setting up the rotation speed.
-
+            // Rotate the camera in Third-person mode around OX and OY using deltaX and deltaY
+            // Use the sensitivity variables for setting up the rotation speed
+            camera->RotateThirdPerson_OX(sensivityOX * -deltaY);
+            camera->RotateThirdPerson_OY(sensivityOY * -deltaX);
         }
     }
 }

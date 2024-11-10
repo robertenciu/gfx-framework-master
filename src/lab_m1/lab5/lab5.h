@@ -34,6 +34,7 @@ namespace m1
         implemented::Camera *camera;
         glm::mat4 projectionMatrix;
         bool renderCameraTarget;
+        float forwarding = 0;
 
         // TODO(student): If you need any other class variables, define them here.
 

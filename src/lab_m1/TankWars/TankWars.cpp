@@ -3,7 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "lab_m1/TankWars/obj2D.h"
-#include "lab_m1/TankWars/Terrain.h"
+
 using namespace std;
 using namespace m1;
 
@@ -43,8 +43,10 @@ void TankWars::Init()
     Mesh* square1 = obj2D::CreateSquare("square1", corner, 1, glm::vec3(0.796, 0.808, 0.569), true);
     AddMeshToList(square1);
 
-    Mesh* square2 = obj2D::CreateSquare("square2", corner, 1, glm::vec3(1.0, 0, 0), true);
+    Mesh* square2 = obj2D::CreateSquare("square2", corner, 5, glm::vec3(1.0, 0, 0), true);
     AddMeshToList(square2);
+    Mesh* square3 = obj2D::CreateSquare("square3", corner, 5, glm::vec3(0.0, 1, 1), true);
+    AddMeshToList(square3);
 
     float topLength = 45;
     float bottomLength = 30;
@@ -71,7 +73,8 @@ void TankWars::Init()
 
     flatness = 1;
 
-    // terenu boss
+
+    // terenu'
     for (int x = 0; x < window->GetResolution().x; x += flatness) {
         float y = shapeFunction(x);
         heightMap[x] = y;
@@ -101,16 +104,19 @@ void TankWars::FrameStart()
 void TankWars::Update(float deltaTimeSeconds)
 {
     // tankul
-
-    glm::mat3 modelMatrix = glm::mat3(1);
+    
+    
     int A_x = tankx - tankx % flatness;
     int B_x = A_x + flatness;
     float A_y = heightMap[A_x];
     float B_y = heightMap[B_x];
     float t = (tankx - A_x) / (B_x - A_x);
-    int tanky = A_y + t * (B_y - A_y);
-    float rotationAngle = atan2((B_y - A_y) , (B_x - A_x));
-    modelMatrix *= transform2D::Translate(tankx, tanky);
+    tanky = A_y + t * (B_y - A_y);
+
+    rotationAngle = atan2((B_y - A_y) , (B_x - A_x));
+
+    glm::mat3 modelMatrix = glm::mat3(1);
+    modelMatrix *= transform2D::Translate(A_x, tanky);
     modelMatrix *= transform2D::Rotate(rotationAngle);
     RenderMesh2D(meshes["trapez1"], shaders["VertexColor"], modelMatrix);
 
@@ -129,22 +135,50 @@ void TankWars::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Translate(tankx, tanky);
     modelMatrix *= transform2D::Rotate(rotationAngle);
     modelMatrix *= transform2D::Translate(0, 25);
-    modelMatrix *= transform2D::Rotate(angleOfAttack);
+    modelMatrix *= transform2D::Rotate(angleOfAttack - rotationAngle);
     modelMatrix *= transform2D::Scale(1, 10 / 1.5);
     RenderMesh2D(meshes["turela"], shaders["VertexColor"], modelMatrix);
 
-    // Traiectorie
-    glm::vec2 position = glm::vec2(0, 0);
 
-    glm::vec2 v = glm::vec2(glm::cos(angleOfAttack) * 2, glm::sin(angleOfAttack) * 2);
-    for (int x = tankx; x <tankx +  500; x += 1) {
-        modelMatrix *= transform2D::Translate(x, tanky);
-        modelMatrix *= transform2D::Translate(0, glm::sin(float(x - tankx) / 10 + angleOfAttack) * 100);
-        RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
-        position += v;
-        modelMatrix = glm::mat3(1);
+    // Traiectorie
+    glm::vec2 position = glm::vec2(tankx, tanky);
+    float gravity = 9.81f;
+    
+    if (shooting) {
+        staticDT = 0.1;
+        posBombaX += v.x * staticDT;
+        posBombaY += v.y * staticDT;
+        v.y -= gravity * staticDT;
+        modelMatrix = glm::mat3(1.0f);
+        modelMatrix *= transform2D::Translate(posBombaX, posBombaY);
+        modelMatrix *= transform2D::Rotate(rotationAngle);
+        modelMatrix *= transform2D::Translate(0, 25);
+        RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
+        if (posBombaY < heightMap[int(posBombaX)] - 25 || posBombaX > window->GetResolution().x) {
+            shooting = false;
+
+            /*for (int i = 0; i < 20; ++i) {
+                heightMap[int(posBombaX) - 10 + i] = heightMap[int(posBombaX) - 10 + i] - 10;
+            }*/
+        }
     }
     
+    staticDT = 0.3;
+    glm::vec2 v2 = glm::vec2(power * glm::cos(angleOfAttack + glm::pi<float>() / 2),
+        power * glm::sin(angleOfAttack + glm::pi<float>() / 2));
+    for (float t = 0.0f; t < 50.0f; t += staticDT) {
+        modelMatrix = glm::mat3(1.0f);
+        modelMatrix *= transform2D::Translate(position.x, position.y);
+        modelMatrix *= transform2D::Rotate(rotationAngle);
+        modelMatrix *= transform2D::Translate(0, 25);
+        RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+
+        position.x += v2.x * staticDT;
+        position.y += v2.y * staticDT;
+        v2.y -= gravity * staticDT;
+
+        if (position.y < heightMap[int(position.x)] - 25 || position.x > window->GetResolution().x) break;
+    }
 
     // Default (0, 0)
     modelMatrix = glm::mat3(1);
@@ -162,9 +196,6 @@ void TankWars::Update(float deltaTimeSeconds)
     modelMatrix = glm::mat3(1);
     RenderMesh2D(meshes["circle1"], shaders["VertexColor"], modelMatrix);
 
-    
-    
-
     // Terenu'
     for (int x = 0; x < window->GetResolution().x - 1; x += 1)
     {
@@ -177,6 +208,7 @@ void TankWars::Update(float deltaTimeSeconds)
 
         RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
     }
+
 }
 
 
@@ -194,23 +226,38 @@ void TankWars::FrameEnd()
 void TankWars::OnInputUpdate(float deltaTime, int mods)
 {
     if (window->KeyHold(GLFW_KEY_D)) {
-        tankx += 100 * deltaTime;
+        tankx += 80 * deltaTime;
     }
     if (window->KeyHold(GLFW_KEY_A)) {
-        tankx -= 50 * deltaTime ;
+        tankx -= 40 * deltaTime ;
     }
     if (window->KeyHold(GLFW_KEY_W)) {
-        angleOfAttack += 1 * deltaTime;
+        angleOfAttack += 0.66 * deltaTime;
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        angleOfAttack -= 1 * deltaTime;
+        angleOfAttack -= 0.66 * deltaTime;
     }
+    /*if (window->KeyHold(GLFW_KEY_SPACE)) {
+        power += 1;
+    }
+    if (window->KeyHold(GLFW_KEY_U)) {
+        power -= 1;
+    }*/
 }
 
 
 void TankWars::OnKeyPress(int key, int mods)
 {
     // Add key press event
+    if (key == GLFW_KEY_SPACE) {
+        if (!shooting) {
+            shooting = true;
+            v = glm::vec2(power * glm::cos(angleOfAttack + glm::pi<float>() / 2),
+                power * glm::sin(angleOfAttack + glm::pi<float>() / 2));
+            posBombaX = tankx;
+            posBombaY = tanky;
+        }
+    }
 }
 
 

@@ -6,10 +6,7 @@
 
 class Terrain : public gfxc::SimpleScene {
 public:
-	Terrain();
-	~Terrain();
-
-	void generateTerrain();
+	float *heightMapGenerator();
 private:
 	float shapeFunction(float x);
 
