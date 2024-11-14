@@ -46,5 +46,6 @@ namespace m1
         glm::vec2 v;
         float rotationAngle = 0;
         float tanky;
+        float TrajRotation = 0.017;
     };
 }   // namespace m1

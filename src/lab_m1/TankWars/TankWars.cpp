@@ -43,9 +43,18 @@ void TankWars::Init()
     Mesh* square1 = obj2D::CreateSquare("square1", corner, 1, glm::vec3(0.796, 0.808, 0.569), true);
     AddMeshToList(square1);
 
-    Mesh* square2 = obj2D::CreateSquare("square2", corner, 5, glm::vec3(1.0, 0, 0), true);
+    // pentru traiectorie
+    Mesh* square2 = obj2D::CreateSquare("square2", glm::vec3(-3, -3, 0), 6, glm::vec3(0.871, 0.192, 0.388), true);
     AddMeshToList(square2);
-    Mesh* square3 = obj2D::CreateSquare("square3", corner, 5, glm::vec3(0.0, 1, 1), true);
+
+    Mesh* square4 = obj2D::CreateSquare("square4", glm::vec3(-2, -2, 0), 4, glm::vec3(0.871, 0.192, 0.388), true);
+    AddMeshToList(square4);
+
+    Mesh* square5 = obj2D::CreateSquare("square5", glm::vec3(-1, -1, 0), 2, glm::vec3(0.871, 0.192, 0.388), true);
+    AddMeshToList(square5);
+
+    // pentru obuz
+    Mesh* square3 = obj2D::CreateSquare("square3", glm::vec3(-5, -5, 0), 10, glm::vec3(0.0, 1, 1), true);
     AddMeshToList(square3);
 
     float topLength = 45;
@@ -145,33 +154,54 @@ void TankWars::Update(float deltaTimeSeconds)
     float gravity = 9.81f;
     
     if (shooting) {
-        staticDT = 0.1;
-        posBombaX += v.x * staticDT;
-        posBombaY += v.y * staticDT;
-        v.y -= gravity * staticDT;
         modelMatrix = glm::mat3(1.0f);
         modelMatrix *= transform2D::Translate(posBombaX, posBombaY);
         modelMatrix *= transform2D::Rotate(rotationAngle);
         modelMatrix *= transform2D::Translate(0, 25);
+        modelMatrix *= transform2D::Rotate(TrajRotation);
         RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
+
+        TrajRotation += 0.1;
+        staticDT = deltaTimeSeconds * 10;
+        posBombaX += v.x * staticDT;
+        posBombaY += v.y * staticDT;
+        v.y -= gravity * staticDT;
         if (posBombaY < heightMap[int(posBombaX)] - 25 || posBombaX > window->GetResolution().x) {
             shooting = false;
-
-            /*for (int i = 0; i < 20; ++i) {
-                heightMap[int(posBombaX) - 10 + i] = heightMap[int(posBombaX) - 10 + i] - 10;
-            }*/
+            v.y += gravity * staticDT;
+            posBombaX -= v.x * staticDT;
+            posBombaY -= v.y * staticDT;
+            int radius = 50;
+            for (size_t i = 0; i < 50; i++) {
+                float leftSide = heightMap[int(posBombaX)] - glm::sqrt(radius * radius - (i - 50) * (i - 50));
+                float rightSide = heightMap[int(posBombaX)] - glm::sqrt(radius * radius - (49 - i) * (49 - i));
+                if (heightMap[int(posBombaX) - 50 + i] > leftSide) {
+                    heightMap[int(posBombaX) - 50 + i] = leftSide;
+                }
+                if (heightMap[int(posBombaX) + 49 - i] > rightSide)
+                    heightMap[int(posBombaX) + 49 - i] = rightSide;
+            }
+            TrajRotation = 0.017;
         }
     }
     
     staticDT = 0.3;
     glm::vec2 v2 = glm::vec2(power * glm::cos(angleOfAttack + glm::pi<float>() / 2),
         power * glm::sin(angleOfAttack + glm::pi<float>() / 2));
-    for (float t = 0.0f; t < 50.0f; t += staticDT) {
+    for (float t = 0.0f; t < 6.0f; t += staticDT) {
         modelMatrix = glm::mat3(1.0f);
         modelMatrix *= transform2D::Translate(position.x, position.y);
         modelMatrix *= transform2D::Rotate(rotationAngle);
         modelMatrix *= transform2D::Translate(0, 25);
-        RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+        if (t < 3) {
+            RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+        }
+        else if (t < 4.5) {
+            RenderMesh2D(meshes["square4"], shaders["VertexColor"], modelMatrix);
+        }
+        else {
+            RenderMesh2D(meshes["square5"], shaders["VertexColor"], modelMatrix);
+        }
 
         position.x += v2.x * staticDT;
         position.y += v2.y * staticDT;
@@ -197,7 +227,7 @@ void TankWars::Update(float deltaTimeSeconds)
     RenderMesh2D(meshes["circle1"], shaders["VertexColor"], modelMatrix);
 
     // Terenu'
-    for (int x = 0; x < window->GetResolution().x - 1; x += 1)
+    for (int x = 0; x < window->GetResolution().x - 1; x += flatness)
     {
         float A_y = heightMap[x];
         float B_y = heightMap[x + 1];

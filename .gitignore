@@ -3,3 +3,6 @@ build*
 /**/.vs
 /**/obj
 components_hidden
+src/lab_m1/lab6/lab6.cpp
+src/lab_m1/lab6/shaders/FragmentShader.glsl
+src/lab_m1/lab6/shaders/VertexShader.glsl
