@@ -27,15 +27,17 @@ namespace m1
         void OnMouseBtnRelease(int mouseX, int mouseY, int button, int mods) override;
         void OnMouseScroll(int mouseX, int mouseY, int offsetX, int offsetY) override;
         void OnWindowResize(int width, int height) override;
+        void MeshCreator();
 
     protected:
+        Terrain* terrain;
         float cx, cy;
         glm::mat3 modelMatrix;
         float translateX, translateY;
         float scaleX, scaleY;
         float angularStep;
         int tankx = 400;
-        float heightMap[1280];
+        float *heightMap;
         int flatness;
         float angleOfAttack = 0;
         float staticDT = 0.0145815;

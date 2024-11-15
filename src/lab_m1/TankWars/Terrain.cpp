@@ -2,20 +2,44 @@
 #include <lab_m1/TankWars/transform2D.h>
 #include "components/simple_scene.h"
 #include "lab_m1/TankWars/obj2D.h"
+#include <vector>
 
 using namespace std;
 
-float Terrain::shapeFunction(float x) {
-    return 300.0f + 100.0f * sin(0.004f * x) + 60.0f * sin(0.02f * x) + 30.0f * sin(0.05f * x);
+Terrain::Terrain(int flatness, int width) {
+    this->flatness = flatness;
+    this->width = width;
+    this->heightMap = this->heightMapGenerator();
 }
-
-float *Terrain::heightMapGenerator() {
-    float flatness = 1;
-    float heightMap[1280];
-    glm::vec3 corner = glm::vec3(0, 0, 0);
-    for (int x = 0; x < 1280; x += flatness) {
+float Terrain::shapeFunction(float x) {
+    return 250.0f + 100.0f * sin(0.004f * x) + 60.0f * sin(0.02f * x) + 30.0f * sin(0.05f * x);
+}
+float* Terrain::heightMapGenerator() {
+    float* heightMap = new float[width];
+    for (int x = 0; x < width; x += flatness) {
         float y = shapeFunction(x);
         heightMap[x] = y;
     }
+    return heightMap;
+}
+vector<glm::mat3> Terrain::heightMapModelGenerator() {
+    vector<glm::mat3> models;
+
+    for (int x = 0; x < width; x += flatness)
+    {
+        float A_y = heightMap[x];
+        float B_y = heightMap[x + 1];
+
+        glm::mat3 modelMatrix = glm::mat3(1);
+        modelMatrix *= transform2D::Translate(x, A_y);
+        modelMatrix *= transform2D::Shear(0, (B_y - A_y) / flatness);
+        modelMatrix *= transform2D::Scale(flatness, -MAX(B_y, A_y));
+        models.push_back(modelMatrix);
+
+    }
+    return models;
+}
+
+float* Terrain::getHeightMap() {
     return heightMap;
 }

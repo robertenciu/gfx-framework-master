@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include "lab_m1/TankWars/obj2D.h"
+#include <vector>
 
 using namespace std;
 using namespace m1;
@@ -16,7 +17,6 @@ using namespace m1;
 
 TankWars::TankWars()
 {
-
 }
 
 
@@ -25,11 +25,63 @@ TankWars::~TankWars()
 }
 
 
-float shapeFunction(float x) {
-    return 250.0f + 100.0f * sin(0.004f * x) + 60.0f * sin(0.02f * x) + 30.0f * sin(0.05f * x);
+void TankWars::MeshCreator() {
+    // For terrain
+    glm::vec3 corner = glm::vec3(0, 0, 0);
+    Mesh* squareTerrain = obj2D::CreateSquare("squareTerrain", corner, 1, glm::vec3(0.796, 0.808, 0.569), true);
+    AddMeshToList(squareTerrain);
+
+    // For trajectory
+    int side = 6;
+    Mesh* square1Trajectory = obj2D::CreateSquare("square1Trajectory", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(0.871, 0.192, 0.388), true);
+    AddMeshToList(square1Trajectory);
+
+    side = 4;
+    Mesh* square2Trajectory = obj2D::CreateSquare("square2Trajectory", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(0.871, 0.192, 0.388), true);
+    AddMeshToList(square2Trajectory);
+
+    side = 2;
+    Mesh* square3Trajectory = obj2D::CreateSquare("square3Trajectory", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(0.871, 0.192, 0.388), true);
+    AddMeshToList(square3Trajectory);
+
+    // For bomb
+    side = 10;
+    Mesh* squareBomb = obj2D::CreateSquare("squareBomb", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(0.0, 1, 1), true);
+    AddMeshToList(squareBomb);
+
+    // For tank
+    // Bottom trapez
+    float topLength = 45;
+    float bottomLength = 30;
+    float height = 10;
+    glm::vec3 center = glm::vec3(-bottomLength / 2, 0, 0);
+    Mesh* trapezBottom = obj2D::CreateTrapezoid("trapezBottom", center, topLength, bottomLength, height, glm::vec3(0.133, 0.125, 0.137), true);
+    AddMeshToList(trapezBottom);
+
+    // Top trapez
+    topLength = 50;
+    bottomLength = 65;
+    height = 15;
+    center = glm::vec3(-bottomLength / 2, 10, 0);
+    Mesh* trapezTop = obj2D::CreateTrapezoid("trapezTop", center, topLength, bottomLength, height, glm::vec3(0.66, 0.66, 0.66), true);
+    AddMeshToList(trapezTop);
+
+    // Turela
+    center = glm::vec3(0, 25, 0);
+    int radius = 10;
+    Mesh* circleTurela = obj2D::CreateCircle("circleTurela", center, radius, glm::vec3(0.66, 0.66, 0.66), 49, true);
+    AddMeshToList(circleTurela);
+
+    // squareTankGun
+    side = 5;
+    Mesh* squareTankGun = obj2D::CreateSquare("squareTankGun", glm::vec3(-side / 2, 1.5, 0), side, glm::vec3(0.133, 0.125, 0.137), true);
+    AddMeshToList(squareTankGun);
 }
+
 void TankWars::Init()
 {
+    MeshCreator();
+
     glm::ivec2 resolution = window->GetResolution();
     auto camera = GetSceneCamera();
     camera->SetOrthographic(0, (float)resolution.x, 0, (float)resolution.y, 0.01f, 400);
@@ -38,56 +90,10 @@ void TankWars::Init()
     camera->Update();
     GetCameraInput()->SetActive(false);
 
-    glm::vec3 corner = glm::vec3(0, 0, 0);
-
-    Mesh* square1 = obj2D::CreateSquare("square1", corner, 1, glm::vec3(0.796, 0.808, 0.569), true);
-    AddMeshToList(square1);
-
-    // pentru traiectorie
-    Mesh* square2 = obj2D::CreateSquare("square2", glm::vec3(-3, -3, 0), 6, glm::vec3(0.871, 0.192, 0.388), true);
-    AddMeshToList(square2);
-
-    Mesh* square4 = obj2D::CreateSquare("square4", glm::vec3(-2, -2, 0), 4, glm::vec3(0.871, 0.192, 0.388), true);
-    AddMeshToList(square4);
-
-    Mesh* square5 = obj2D::CreateSquare("square5", glm::vec3(-1, -1, 0), 2, glm::vec3(0.871, 0.192, 0.388), true);
-    AddMeshToList(square5);
-
-    // pentru obuz
-    Mesh* square3 = obj2D::CreateSquare("square3", glm::vec3(-5, -5, 0), 10, glm::vec3(0.0, 1, 1), true);
-    AddMeshToList(square3);
-
-    float topLength = 45;
-    float bottomLength = 30;
-    float height = 10;
-    glm::vec3 center = glm::vec3(-bottomLength / 2, 0, 0);
-    
-
-    Mesh* trapez1 = obj2D::CreateTrapezoid("trapez1", center, 45, 30, 10, glm::vec3(0.133, 0.125, 0.137), true);
-    AddMeshToList(trapez1);
-
-    topLength = 50;
-    bottomLength = 65;
-    height = 15;
-    center = glm::vec3(-bottomLength / 2, 10, 0);
-    Mesh* trapez2 = obj2D::CreateTrapezoid("trapez2", center, 50, 65, 15, glm::vec3(0.66, 0.66, 0.66), true);
-    AddMeshToList(trapez2);
-
-    center = glm::vec3(0, 25, 0);
-    Mesh* circle1 = obj2D::CreateCircle("circle1", center, 10, glm::vec3(0.66, 0.66, 0.66), 49, true);
-    AddMeshToList(circle1);
-
-    Mesh* turela = obj2D::CreateSquare("turela", glm::vec3(-2.5, 1.5, 0), 5, glm::vec3(0.133, 0.125, 0.137), true);
-    AddMeshToList(turela);
-
     flatness = 1;
-
-
-    // terenu'
-    for (int x = 0; x < window->GetResolution().x; x += flatness) {
-        float y = shapeFunction(x);
-        heightMap[x] = y;
-    }
+    terrain = new Terrain(flatness, resolution.x);
+    heightMap = terrain->getHeightMap();
+    
 }
 
 
@@ -127,26 +133,18 @@ void TankWars::Update(float deltaTimeSeconds)
     glm::mat3 modelMatrix = glm::mat3(1);
     modelMatrix *= transform2D::Translate(A_x, tanky);
     modelMatrix *= transform2D::Rotate(rotationAngle);
-    RenderMesh2D(meshes["trapez1"], shaders["VertexColor"], modelMatrix);
 
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankx, tanky);
-    modelMatrix *= transform2D::Rotate(rotationAngle);
-    RenderMesh2D(meshes["trapez2"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], modelMatrix);
 
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankx, tanky);
-    modelMatrix *= transform2D::Rotate(rotationAngle);
-    RenderMesh2D(meshes["circle1"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], modelMatrix);
 
-    // Turela
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(tankx, tanky);
-    modelMatrix *= transform2D::Rotate(rotationAngle);
+    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], modelMatrix);
+
+    // squareTankGun
     modelMatrix *= transform2D::Translate(0, 25);
     modelMatrix *= transform2D::Rotate(angleOfAttack - rotationAngle);
     modelMatrix *= transform2D::Scale(1, 10 / 1.5);
-    RenderMesh2D(meshes["turela"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], modelMatrix);
 
 
     // Traiectorie
@@ -159,7 +157,7 @@ void TankWars::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Rotate(rotationAngle);
         modelMatrix *= transform2D::Translate(0, 25);
         modelMatrix *= transform2D::Rotate(TrajRotation);
-        RenderMesh2D(meshes["square3"], shaders["VertexColor"], modelMatrix);
+        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], modelMatrix);
 
         TrajRotation += 0.1;
         staticDT = deltaTimeSeconds * 10;
@@ -194,13 +192,13 @@ void TankWars::Update(float deltaTimeSeconds)
         modelMatrix *= transform2D::Rotate(rotationAngle);
         modelMatrix *= transform2D::Translate(0, 25);
         if (t < 3) {
-            RenderMesh2D(meshes["square2"], shaders["VertexColor"], modelMatrix);
+            RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], modelMatrix);
         }
         else if (t < 4.5) {
-            RenderMesh2D(meshes["square4"], shaders["VertexColor"], modelMatrix);
+            RenderMesh2D(meshes["square2Trajectory"], shaders["VertexColor"], modelMatrix);
         }
         else {
-            RenderMesh2D(meshes["square5"], shaders["VertexColor"], modelMatrix);
+            RenderMesh2D(meshes["square3Trajectory"], shaders["VertexColor"], modelMatrix);
         }
 
         position.x += v2.x * staticDT;
@@ -216,29 +214,22 @@ void TankWars::Update(float deltaTimeSeconds)
     modelMatrix *= transform2D::Translate(0, 25);
     modelMatrix *= transform2D::Rotate(angleOfAttack);
     modelMatrix *= transform2D::Scale(1, 5);
-    RenderMesh2D(meshes["turela"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], modelMatrix);
     modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["trapez1"], shaders["VertexColor"], modelMatrix);
-
-    modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["trapez2"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], modelMatrix);
 
     modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["circle1"], shaders["VertexColor"], modelMatrix);
+    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], modelMatrix);
 
-    // Terenu'
-    for (int x = 0; x < window->GetResolution().x - 1; x += flatness)
-    {
-        float A_y = heightMap[x];
-        float B_y = heightMap[x + 1];
-        glm::mat3 modelMatrix = glm::mat3(1);
-        modelMatrix *= transform2D::Translate(x, A_y);
-        modelMatrix *= transform2D::Shear(0, (B_y - A_y) / flatness);
-        modelMatrix *= transform2D::Scale(flatness, -MAX(B_y, A_y));
+    modelMatrix = glm::mat3(1);
+    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], modelMatrix);
 
-        RenderMesh2D(meshes["square1"], shaders["VertexColor"], modelMatrix);
+
+    // Terrain Generate
+    vector<glm::mat3> heightMapModels = terrain->heightMapModelGenerator();
+    for (glm::mat3 model : heightMapModels) {
+        RenderMesh2D(meshes["squareTerrain"], shaders["VertexColor"], model);
     }
-
 }
 
 
