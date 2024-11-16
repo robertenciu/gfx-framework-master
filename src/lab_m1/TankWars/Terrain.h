@@ -1,8 +1,8 @@
 #pragma once
-#include "components/simple_scene.h"
 
 #include <cstdlib>
 #include <lab_m1/TankWars/transform2D.h>
+#include <vector>
 
 class Terrain {
 
@@ -11,13 +11,14 @@ public:
 	~Terrain();
 	std::vector<glm::mat3> heightMapModelGenerator();
 	float* getHeightMap();
-	float* setHeightMap();
+	int getFlatness();
+	int getWidth();
 private:
 	float* heightMapGenerator();
 	float shapeFunction(float x);
-	float *heightMap;
 	int flatness;
 	int width;
+	float* heightMap;
 
 protected:
 };

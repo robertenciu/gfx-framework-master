@@ -2,7 +2,7 @@
 
 #include "components/simple_scene.h"
 #include "lab_m1/TankWars/Terrain.h"
-
+#include "lab_m1/TankWars/Tank.h"
 
 namespace m1
 {
@@ -31,6 +31,8 @@ namespace m1
 
     protected:
         Terrain* terrain;
+        Tank* firstTank;
+        Tank* secondTank;
         float cx, cy;
         glm::mat3 modelMatrix;
         float translateX, translateY;

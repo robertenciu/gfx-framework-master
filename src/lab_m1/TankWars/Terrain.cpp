@@ -1,6 +1,5 @@
 #include "Terrain.h"
 #include <lab_m1/TankWars/transform2D.h>
-#include "components/simple_scene.h"
 #include "lab_m1/TankWars/obj2D.h"
 #include <vector>
 
@@ -42,4 +41,10 @@ vector<glm::mat3> Terrain::heightMapModelGenerator() {
 
 float* Terrain::getHeightMap() {
     return heightMap;
+}
+int Terrain::getFlatness() {
+    return flatness;
+}
+int Terrain::getWidth() {
+    return width;
 }

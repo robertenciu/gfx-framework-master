@@ -33,7 +33,7 @@ void TankWars::MeshCreator() {
 
     // For trajectory
     int side = 6;
-    Mesh* square1Trajectory = obj2D::CreateSquare("square1Trajectory", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(0.871, 0.192, 0.388), true);
+    Mesh* square1Trajectory = obj2D::CreateSquare("square1Trajectory", glm::vec3(-side / 2, -side / 2, 0), side, glm::vec3(1, 1, 1), true);
     AddMeshToList(square1Trajectory);
 
     side = 4;
@@ -76,6 +76,10 @@ void TankWars::MeshCreator() {
     side = 5;
     Mesh* squareTankGun = obj2D::CreateSquare("squareTankGun", glm::vec3(-side / 2, 1.5, 0), side, glm::vec3(0.133, 0.125, 0.137), true);
     AddMeshToList(squareTankGun);
+
+    corner = glm::vec3(-2.5, 10, 0);
+    Mesh* health = obj2D::CreateSquare("health", corner, 5, glm::vec3(0.796, 0.808, 0.569), true);
+    AddMeshToList(health);
 }
 
 void TankWars::Init()
@@ -94,6 +98,8 @@ void TankWars::Init()
     terrain = new Terrain(flatness, resolution.x);
     heightMap = terrain->getHeightMap();
     
+    firstTank = new Tank(300, terrain);
+    secondTank = new Tank(700, terrain);
 }
 
 
@@ -118,112 +124,53 @@ void TankWars::FrameStart()
 
 void TankWars::Update(float deltaTimeSeconds)
 {
-    // tankul
-    
-    
-    int A_x = tankx - tankx % flatness;
-    int B_x = A_x + flatness;
-    float A_y = heightMap[A_x];
-    float B_y = heightMap[B_x];
-    float t = (tankx - A_x) / (B_x - A_x);
-    tanky = A_y + t * (B_y - A_y);
+    // First tank
+    firstTank->update(deltaTimeSeconds);
 
-    rotationAngle = atan2((B_y - A_y) , (B_x - A_x));
+    glm::mat3 firstTankBaseModel = firstTank->getBaseModel();
+    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], firstTankBaseModel);
+    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], firstTankBaseModel);
+    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], firstTankBaseModel);
 
-    glm::mat3 modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Translate(A_x, tanky);
-    modelMatrix *= transform2D::Rotate(rotationAngle);
+    glm::mat3 firstTankGunModel = firstTank->getGunModel();
+    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], firstTankGunModel);
 
-    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], modelMatrix);
-
-    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], modelMatrix);
-
-    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], modelMatrix);
-
-    // squareTankGun
-    modelMatrix *= transform2D::Translate(0, 25);
-    modelMatrix *= transform2D::Rotate(angleOfAttack - rotationAngle);
-    modelMatrix *= transform2D::Scale(1, 10 / 1.5);
-    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], modelMatrix);
-
-
-    // Traiectorie
-    glm::vec2 position = glm::vec2(tankx, tanky);
-    float gravity = 9.81f;
-    
-    if (shooting) {
-        modelMatrix = glm::mat3(1.0f);
-        modelMatrix *= transform2D::Translate(posBombaX, posBombaY);
-        modelMatrix *= transform2D::Rotate(rotationAngle);
-        modelMatrix *= transform2D::Translate(0, 25);
-        modelMatrix *= transform2D::Rotate(TrajRotation);
-        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], modelMatrix);
-
-        TrajRotation += 0.1;
-        staticDT = deltaTimeSeconds * 10;
-        posBombaX += v.x * staticDT;
-        posBombaY += v.y * staticDT;
-        v.y -= gravity * staticDT;
-        if (posBombaY < heightMap[int(posBombaX)] - 25 || posBombaX > window->GetResolution().x) {
-            shooting = false;
-            v.y += gravity * staticDT;
-            posBombaX -= v.x * staticDT;
-            posBombaY -= v.y * staticDT;
-            int radius = 50;
-            for (size_t i = 0; i < 50; i++) {
-                float leftSide = heightMap[int(posBombaX)] - glm::sqrt(radius * radius - (i - 50) * (i - 50));
-                float rightSide = heightMap[int(posBombaX)] - glm::sqrt(radius * radius - (49 - i) * (49 - i));
-                if (heightMap[int(posBombaX) - 50 + i] > leftSide) {
-                    heightMap[int(posBombaX) - 50 + i] = leftSide;
-                }
-                if (heightMap[int(posBombaX) + 49 - i] > rightSide)
-                    heightMap[int(posBombaX) + 49 - i] = rightSide;
-            }
-            TrajRotation = 0.017;
-        }
-    }
-    
-    staticDT = 0.3;
-    glm::vec2 v2 = glm::vec2(power * glm::cos(angleOfAttack + glm::pi<float>() / 2),
-        power * glm::sin(angleOfAttack + glm::pi<float>() / 2));
-    for (float t = 0.0f; t < 6.0f; t += staticDT) {
-        modelMatrix = glm::mat3(1.0f);
-        modelMatrix *= transform2D::Translate(position.x, position.y);
-        modelMatrix *= transform2D::Rotate(rotationAngle);
-        modelMatrix *= transform2D::Translate(0, 25);
-        if (t < 3) {
-            RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], modelMatrix);
-        }
-        else if (t < 4.5) {
-            RenderMesh2D(meshes["square2Trajectory"], shaders["VertexColor"], modelMatrix);
-        }
-        else {
-            RenderMesh2D(meshes["square3Trajectory"], shaders["VertexColor"], modelMatrix);
-        }
-
-        position.x += v2.x * staticDT;
-        position.y += v2.y * staticDT;
-        v2.y -= gravity * staticDT;
-
-        if (position.y < heightMap[int(position.x)] - 25 || position.x > window->GetResolution().x) break;
+    vector<glm::mat3> firstTankTrajectoryModels = firstTank->trajectoryModelGenerator();
+    for (glm::mat3 model : firstTankTrajectoryModels) {
+        RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
     }
 
-    // Default (0, 0)
-    modelMatrix = glm::mat3(1);
-    modelMatrix *= transform2D::Rotate(rotationAngle);
-    modelMatrix *= transform2D::Translate(0, 25);
-    modelMatrix *= transform2D::Rotate(angleOfAttack);
-    modelMatrix *= transform2D::Scale(1, 5);
-    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], modelMatrix);
-    modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], modelMatrix);
+    glm::mat3 firstTankHealthModel = firstTank->getHealthModel();
+    RenderMesh2D(meshes["health"], shaders["VertexColor"], firstTankHealthModel);
 
-    modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], modelMatrix);
+    firstTank->updateShooting(secondTank);
+    if (firstTank->isTankShooting()) {
+        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], firstTank->getBombModel());
+    }
 
-    modelMatrix = glm::mat3(1);
-    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], modelMatrix);
+    // Second tank
+    secondTank->update(deltaTimeSeconds);
 
+    glm::mat3 secondTankBaseModel = secondTank->getBaseModel();
+    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], secondTankBaseModel);
+    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], secondTankBaseModel);
+    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], secondTankBaseModel);
+
+    glm::mat3 secondTankGunModel = secondTank->getGunModel();
+    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], secondTankGunModel);
+
+    vector<glm::mat3> secondTankTrajectoryModels = secondTank->trajectoryModelGenerator();
+    for (glm::mat3 model : secondTankTrajectoryModels) {
+        RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
+    }
+
+    glm::mat3 secondTankHealthModel = secondTank->getHealthModel();
+    RenderMesh2D(meshes["health"], shaders["VertexColor"], secondTankHealthModel);
+
+    secondTank->updateShooting(firstTank);
+    if (secondTank->isTankShooting()) {
+        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], secondTank->getBombModel());
+    }
 
     // Terrain Generate
     vector<glm::mat3> heightMapModels = terrain->heightMapModelGenerator();
@@ -247,23 +194,29 @@ void TankWars::FrameEnd()
 void TankWars::OnInputUpdate(float deltaTime, int mods)
 {
     if (window->KeyHold(GLFW_KEY_D)) {
-        tankx += 80 * deltaTime;
+        firstTank->moveRight();
     }
     if (window->KeyHold(GLFW_KEY_A)) {
-        tankx -= 40 * deltaTime ;
+        firstTank->moveLeft();
     }
     if (window->KeyHold(GLFW_KEY_W)) {
-        angleOfAttack += 0.66 * deltaTime;
+        firstTank->updateAngleOfAttack(true);
     }
     if (window->KeyHold(GLFW_KEY_S)) {
-        angleOfAttack -= 0.66 * deltaTime;
+        firstTank->updateAngleOfAttack(false);
     }
-    /*if (window->KeyHold(GLFW_KEY_SPACE)) {
-        power += 1;
+    if (window->KeyHold(GLFW_KEY_RIGHT)) {
+        secondTank->moveRight();
     }
-    if (window->KeyHold(GLFW_KEY_U)) {
-        power -= 1;
-    }*/
+    if (window->KeyHold(GLFW_KEY_LEFT)) {
+        secondTank->moveLeft();
+    }
+    if (window->KeyHold(GLFW_KEY_UP)) {
+        secondTank->updateAngleOfAttack(false);
+    }
+    if (window->KeyHold(GLFW_KEY_DOWN)) {
+        secondTank->updateAngleOfAttack(true);
+    }
 }
 
 
@@ -271,13 +224,10 @@ void TankWars::OnKeyPress(int key, int mods)
 {
     // Add key press event
     if (key == GLFW_KEY_SPACE) {
-        if (!shooting) {
-            shooting = true;
-            v = glm::vec2(power * glm::cos(angleOfAttack + glm::pi<float>() / 2),
-                power * glm::sin(angleOfAttack + glm::pi<float>() / 2));
-            posBombaX = tankx;
-            posBombaY = tanky;
-        }
+        firstTank->startShooting();
+    }
+    if (key == GLFW_KEY_ENTER) {
+        secondTank->startShooting();
     }
 }
 
