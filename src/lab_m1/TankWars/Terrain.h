@@ -16,9 +16,9 @@ public:
 private:
 	float* heightMapGenerator();
 	float shapeFunction(float x);
+	float* heightMap;
 	int flatness;
 	int width;
-	float* heightMap;
 
 protected:
 };

@@ -19,6 +19,7 @@ public:
 	void updateShooting(Tank *otherTank);
 	void getDamage();
 	bool isTankShooting();
+	int getHealth();
 	Point getCoordinates();
 	std::vector<glm::mat3> trajectoryModelGenerator();
 	glm::mat3 getBaseModel();
@@ -34,7 +35,6 @@ private:
 	float angleOfAttack;
 	float rotationAngle;
 	float deltaTime;
-
 
 	void updateRotationAngle();
 	void updateY();

@@ -158,6 +158,10 @@ void Tank::getDamage() {
 bool Tank::isTankShooting() {
 	return isShooting;
 }
+int Tank::getHealth()
+{
+	return health;
+}
 Point Tank::getCoordinates() {
 	return coordinates;
 }

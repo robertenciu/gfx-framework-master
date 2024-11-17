@@ -11,4 +11,3 @@
 #include "lab_m1/lab8/lab8.h"
 #include "lab_m1/lab9/lab9.h"
 #include "lab_m1/TankWars/TankWars.h"
-#include "lab_m1/TankWars/TankWars_vis2D.h"

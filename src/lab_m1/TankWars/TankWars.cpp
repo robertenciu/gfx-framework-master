@@ -94,9 +94,8 @@ void TankWars::Init()
     camera->Update();
     GetCameraInput()->SetActive(false);
 
-    flatness = 1;
-    terrain = new Terrain(flatness, resolution.x);
-    heightMap = terrain->getHeightMap();
+
+    terrain = new Terrain(1, resolution.x);
     
     firstTank = new Tank(300, terrain);
     secondTank = new Tank(700, terrain);
@@ -114,64 +113,58 @@ void TankWars::FrameStart()
     glViewport(0, 0, resolution.x, resolution.y);
 }
 
-//float terrainFunction(float x) {
-//    return 255.0f + 30.0f * sin(0.015f * x) + 10.f * sin(0.042f * x) + 30.0f * sin(0.008f * x);
-//}
-//float terrainFunction(float x) {
-//    return 150.0f + 70.0f * sin(0.008f * x) + 40.0f * sin(0.015f * x) + 20.0f * sin(0.03f * x);
-//}
-
-
 void TankWars::Update(float deltaTimeSeconds)
 {
     // First tank
-    firstTank->update(deltaTimeSeconds);
+    if (firstTank->getHealth() > 0) {
+        firstTank->update(deltaTimeSeconds);
 
-    glm::mat3 firstTankBaseModel = firstTank->getBaseModel();
-    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], firstTankBaseModel);
-    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], firstTankBaseModel);
-    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], firstTankBaseModel);
+        glm::mat3 firstTankBaseModel = firstTank->getBaseModel();
+        RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], firstTankBaseModel);
+        RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], firstTankBaseModel);
+        RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], firstTankBaseModel);
 
-    glm::mat3 firstTankGunModel = firstTank->getGunModel();
-    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], firstTankGunModel);
+        glm::mat3 firstTankGunModel = firstTank->getGunModel();
+        RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], firstTankGunModel);
 
-    vector<glm::mat3> firstTankTrajectoryModels = firstTank->trajectoryModelGenerator();
-    for (glm::mat3 model : firstTankTrajectoryModels) {
-        RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
+        vector<glm::mat3> firstTankTrajectoryModels = firstTank->trajectoryModelGenerator();
+        for (glm::mat3 model : firstTankTrajectoryModels) {
+            RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
+        }
+
+        glm::mat3 firstTankHealthModel = firstTank->getHealthModel();
+        RenderMesh2D(meshes["health"], shaders["VertexColor"], firstTankHealthModel);
+
+        firstTank->updateShooting(secondTank);
+        if (firstTank->isTankShooting()) {
+            RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], firstTank->getBombModel());
+        }
     }
-
-    glm::mat3 firstTankHealthModel = firstTank->getHealthModel();
-    RenderMesh2D(meshes["health"], shaders["VertexColor"], firstTankHealthModel);
-
-    firstTank->updateShooting(secondTank);
-    if (firstTank->isTankShooting()) {
-        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], firstTank->getBombModel());
-    }
-
     // Second tank
-    secondTank->update(deltaTimeSeconds);
+    if (secondTank->getHealth() > 0) {
+        secondTank->update(deltaTimeSeconds);
 
-    glm::mat3 secondTankBaseModel = secondTank->getBaseModel();
-    RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], secondTankBaseModel);
-    RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], secondTankBaseModel);
-    RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], secondTankBaseModel);
+        glm::mat3 secondTankBaseModel = secondTank->getBaseModel();
+        RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], secondTankBaseModel);
+        RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], secondTankBaseModel);
+        RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], secondTankBaseModel);
 
-    glm::mat3 secondTankGunModel = secondTank->getGunModel();
-    RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], secondTankGunModel);
+        glm::mat3 secondTankGunModel = secondTank->getGunModel();
+        RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], secondTankGunModel);
 
-    vector<glm::mat3> secondTankTrajectoryModels = secondTank->trajectoryModelGenerator();
-    for (glm::mat3 model : secondTankTrajectoryModels) {
-        RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
+        vector<glm::mat3> secondTankTrajectoryModels = secondTank->trajectoryModelGenerator();
+        for (glm::mat3 model : secondTankTrajectoryModels) {
+            RenderMesh2D(meshes["square1Trajectory"], shaders["VertexColor"], model);
+        }
+
+        glm::mat3 secondTankHealthModel = secondTank->getHealthModel();
+        RenderMesh2D(meshes["health"], shaders["VertexColor"], secondTankHealthModel);
+
+        secondTank->updateShooting(firstTank);
+        if (secondTank->isTankShooting()) {
+            RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], secondTank->getBombModel());
+        }
     }
-
-    glm::mat3 secondTankHealthModel = secondTank->getHealthModel();
-    RenderMesh2D(meshes["health"], shaders["VertexColor"], secondTankHealthModel);
-
-    secondTank->updateShooting(firstTank);
-    if (secondTank->isTankShooting()) {
-        RenderMesh2D(meshes["squareBomb"], shaders["VertexColor"], secondTank->getBombModel());
-    }
-
     // Terrain Generate
     vector<glm::mat3> heightMapModels = terrain->heightMapModelGenerator();
     for (glm::mat3 model : heightMapModels) {

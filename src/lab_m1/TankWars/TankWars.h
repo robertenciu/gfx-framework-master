@@ -33,23 +33,5 @@ namespace m1
         Terrain* terrain;
         Tank* firstTank;
         Tank* secondTank;
-        float cx, cy;
-        glm::mat3 modelMatrix;
-        float translateX, translateY;
-        float scaleX, scaleY;
-        float angularStep;
-        int tankx = 400;
-        float *heightMap;
-        int flatness;
-        float angleOfAttack = 0;
-        float staticDT = 0.0145815;
-        float power = 60;
-        bool shooting = false;
-        float posBombaX = 0;
-        float posBombaY = 0;
-        glm::vec2 v;
-        float rotationAngle = 0;
-        float tanky;
-        float TrajRotation = 0.017;
     };
 }   // namespace m1

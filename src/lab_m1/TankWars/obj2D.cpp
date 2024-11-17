@@ -49,7 +49,6 @@ Mesh* obj2D::CreateTrapezoid(
 {
     glm::vec3 corner = leftBottomCorner;
 
-    // Calculate the four corners of the trapezoid
     glm::vec3 bottomLeft = corner;
     glm::vec3 bottomRight = corner + glm::vec3(bottomLength, 0, 0);
     glm::vec3 topLeft = corner + glm::vec3((bottomLength - topLength) / 2, height, 0);
