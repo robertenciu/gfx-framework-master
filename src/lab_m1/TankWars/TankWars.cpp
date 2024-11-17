@@ -55,7 +55,7 @@ void TankWars::MeshCreator() {
     float bottomLength = 30;
     float height = 10;
     glm::vec3 center = glm::vec3(-bottomLength / 2, 0, 0);
-    Mesh* trapezBottom = obj2D::CreateTrapezoid("trapezBottom", center, topLength, bottomLength, height, glm::vec3(0.133, 0.125, 0.137), true);
+    Mesh* trapezBottom = obj2D::CreateTrapez("trapezBottom", center, topLength, bottomLength, height, glm::vec3(0.133, 0.125, 0.137), true);
     AddMeshToList(trapezBottom);
 
     // Top trapez
@@ -63,14 +63,16 @@ void TankWars::MeshCreator() {
     bottomLength = 65;
     height = 15;
     center = glm::vec3(-bottomLength / 2, 10, 0);
-    Mesh* trapezTop = obj2D::CreateTrapezoid("trapezTop", center, topLength, bottomLength, height, glm::vec3(0.66, 0.66, 0.66), true);
+    Mesh* trapezTop = obj2D::CreateTrapez("trapezTop", center, topLength, bottomLength, height, glm::vec3(0.66, 0.66, 0.66), true);
     AddMeshToList(trapezTop);
 
     // Turela
     center = glm::vec3(0, 25, 0);
     int radius = 10;
-    Mesh* circleTurela = obj2D::CreateCircle("circleTurela", center, radius, glm::vec3(0.66, 0.66, 0.66), 49, true);
+    Mesh* circleTurela = obj2D::CreateCircle("circleTurela", center, radius, glm::vec3(0.878, 0.616, 0.086), 49, true);
     AddMeshToList(circleTurela);
+    Mesh* circleTurela2 = obj2D::CreateCircle("circleTurela2", center, radius, glm::vec3(0.314, 0.784, 0.471), 49, true);
+    AddMeshToList(circleTurela2);
 
     // squareTankGun
     side = 5;
@@ -147,7 +149,7 @@ void TankWars::Update(float deltaTimeSeconds)
         glm::mat3 secondTankBaseModel = secondTank->getBaseModel();
         RenderMesh2D(meshes["trapezBottom"], shaders["VertexColor"], secondTankBaseModel);
         RenderMesh2D(meshes["trapezTop"], shaders["VertexColor"], secondTankBaseModel);
-        RenderMesh2D(meshes["circleTurela"], shaders["VertexColor"], secondTankBaseModel);
+        RenderMesh2D(meshes["circleTurela2"], shaders["VertexColor"], secondTankBaseModel);
 
         glm::mat3 secondTankGunModel = secondTank->getGunModel();
         RenderMesh2D(meshes["squareTankGun"], shaders["VertexColor"], secondTankGunModel);

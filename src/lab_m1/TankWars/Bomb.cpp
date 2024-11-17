@@ -35,6 +35,8 @@ void Bomb::updateBomb(float deltaTime, bool *stillShooting, Terrain *terrain, Ta
 	if (coordinates.x > tankCoordinates.x - 35 && coordinates.x < tankCoordinates.x + 35) {
 		if (coordinates.y >= tankCoordinates.y && coordinates.y < tankCoordinates.y + 25) {
 			otherTank->getDamage();
+			*stillShooting = false;
+			return;
 		}
 	}
 
